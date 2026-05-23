@@ -1,0 +1,197 @@
+aid: bitquery
+url: https://raw.githubusercontent.com/api-evangelist/bitquery/refs/heads/main/apis.yml
+name: Bitquery
+kind: company
+description: >-
+  Bitquery is a blockchain data platform that exposes a single unified GraphQL
+  schema across 40+ networks (Ethereum, Solana, BSC, Base, Polygon, Arbitrum,
+  Optimism, Tron, and more) through multiple delivery modes - GraphQL over
+  HTTP, GraphQL subscriptions over WebSocket, Kafka protobuf streams,
+  gRPC (Solana CoreCast), an MCP server backed by ClickHouse, and parquet
+  cloud datasets. Core data products cover token prices and OHLCV, DEX trades,
+  transfers and wallet flows, contract calls and traces, events, NFTs and
+  metadata, balances and holders, and mempool / pending transactions.
+image: https://kinlane-productions.s3.amazonaws.com/apis-json/apis-json-logo.jpg
+tags:
+  - Blockchain Data
+  - GraphQL
+  - Streaming
+  - Indexer
+  - DEX
+  - NFT
+  - Crypto
+  - Web3
+created: '2026-05-23'
+modified: '2026-05-23'
+specificationVersion: '0.19'
+apis:
+  - aid: bitquery:graphql-v2
+    name: Bitquery GraphQL API (V2)
+    description: >-
+      Unified GraphQL endpoint for querying onchain data across 40+ supported
+      blockchains - blocks, transactions, transfers, DEX trades, balances,
+      holders, NFTs, prices, events, traces. Standard GraphQL POST over HTTP
+      with API-key authentication.
+    humanURL: https://docs.bitquery.io/
+    baseURL: https://streaming.bitquery.io/graphql
+    tags:
+      - GraphQL
+      - Multi-Chain
+      - Onchain Data
+    properties:
+      - type: Documentation
+        url: https://docs.bitquery.io/
+  - aid: bitquery:graphql-v1
+    name: Bitquery GraphQL API (V1)
+    description: >-
+      Legacy GraphQL endpoint covering Bitquery's V1 schema - kept for
+      backward compatibility while customers migrate to V2.
+    humanURL: https://docs.bitquery.io/
+    baseURL: https://graphql.bitquery.io
+    tags:
+      - GraphQL
+      - Legacy
+      - V1
+    properties:
+      - type: Documentation
+        url: https://docs.bitquery.io/
+  - aid: bitquery:streaming-subscriptions
+    name: Bitquery Streaming Subscriptions
+    description: >-
+      GraphQL subscriptions over WebSocket for real-time blockchain data -
+      live DEX trades, transfers, pending transactions, contract events.
+      Same V2 schema as the HTTP endpoint, delivered as push events.
+    humanURL: https://docs.bitquery.io/docs/subscriptions/protobuf/overview/
+    baseURL: wss://streaming.bitquery.io/graphql
+    tags:
+      - GraphQL Subscriptions
+      - WebSocket
+      - Streaming
+      - Realtime
+    properties:
+      - type: Documentation
+        url: https://docs.bitquery.io/docs/subscriptions/protobuf/overview/
+  - aid: bitquery:kafka-streams
+    name: Bitquery Kafka Streams
+    description: >-
+      Protobuf-encoded streams of decoded blockchain data delivered via
+      managed Kafka topics. Designed for scale-out consumption by indexers,
+      analytics pipelines, and warehouses that need to backfill or stream at
+      high throughput.
+    humanURL: https://docs.bitquery.io/docs/streams/kafka-streaming-concepts/
+    baseURL: https://docs.bitquery.io/docs/streams/kafka-streaming-concepts/
+    tags:
+      - Kafka
+      - Streaming
+      - Protobuf
+      - Scale
+    properties:
+      - type: Documentation
+        url: https://docs.bitquery.io/docs/streams/kafka-streaming-concepts/
+  - aid: bitquery:grpc-corecast
+    name: Bitquery Solana CoreCast (gRPC)
+    description: >-
+      gRPC streaming API for Solana that delivers decoded block, transaction,
+      and instruction data with sub-second latency. Targeted at Solana-native
+      apps, MEV searchers, and high-throughput indexers.
+    humanURL: https://docs.bitquery.io/
+    baseURL: https://docs.bitquery.io/
+    tags:
+      - gRPC
+      - Solana
+      - Streaming
+      - CoreCast
+    properties:
+      - type: Documentation
+        url: https://docs.bitquery.io/
+  - aid: bitquery:mcp-server
+    name: Bitquery MCP Server
+    description: >-
+      Model Context Protocol server backed by ClickHouse that lets AI agents
+      query Bitquery's onchain dataset using natural language and structured
+      tool calls.
+    humanURL: https://docs.bitquery.io/
+    baseURL: https://docs.bitquery.io/
+    tags:
+      - MCP
+      - AI Agents
+      - ClickHouse
+    properties:
+      - type: Documentation
+        url: https://docs.bitquery.io/
+  - aid: bitquery:cloud-datasets
+    name: Bitquery Cloud Datasets
+    description: >-
+      Parquet-format cloud datasets containing Bitquery's decoded onchain
+      data for direct load into data warehouses (Snowflake, BigQuery,
+      Redshift, Databricks).
+    humanURL: https://docs.bitquery.io/
+    baseURL: https://docs.bitquery.io/
+    tags:
+      - Datasets
+      - Parquet
+      - Warehouse
+    properties:
+      - type: Documentation
+        url: https://docs.bitquery.io/
+  - aid: bitquery:ide
+    name: Bitquery IDE
+    description: >-
+      In-browser GraphQL IDE for authoring, testing, and saving Bitquery
+      queries against the V1 and V2 schemas. Used by developers to prototype
+      before wiring queries into apps.
+    humanURL: https://ide.bitquery.io/
+    baseURL: https://ide.bitquery.io/
+    tags:
+      - IDE
+      - GraphQL
+      - Query Authoring
+    properties:
+      - type: Website
+        url: https://ide.bitquery.io/
+  - aid: bitquery:explorer
+    name: Bitquery Explorer
+    description: >-
+      Multi-chain block explorer surfacing transactions, addresses, tokens,
+      and DEX activity searchable across all chains Bitquery indexes.
+    humanURL: https://explorer.bitquery.io/
+    baseURL: https://explorer.bitquery.io/
+    tags:
+      - Explorer
+      - Multi-Chain
+    properties:
+      - type: Website
+        url: https://explorer.bitquery.io/
+  - aid: bitquery:dexrabbit
+    name: DEXrabbit
+    description: >-
+      Real-time DEX analytics product built on Bitquery's data - tracks
+      trades, liquidity, volumes, and trending tokens across DEXes on
+      multiple chains.
+    humanURL: https://dexrabbit.com/
+    baseURL: https://dexrabbit.com/
+    tags:
+      - DEX
+      - Analytics
+      - Real-Time
+    properties:
+      - type: Website
+        url: https://dexrabbit.com/
+common:
+  - type: Website
+    url: https://bitquery.io/
+  - type: Documentation
+    url: https://docs.bitquery.io/
+  - type: GitHub
+    url: https://github.com/bitquery
+  - type: IDE
+    url: https://ide.bitquery.io/
+  - type: Explorer
+    url: https://explorer.bitquery.io/
+  - type: X
+    url: https://x.com/Bitquery_io
+  - type: Blog
+    url: https://bitquery.io/blog
+maintainers:
+  - FN: Kin Lane
+    email: kin@apievangelist.com
