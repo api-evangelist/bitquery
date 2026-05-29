@@ -1,0 +1,538 @@
+asyncapi: '2.6.0'
+info:
+  title: Bitquery Streaming GraphQL Subscriptions
+  version: '2.0.0'
+  description: >-
+    AsyncAPI description of Bitquery's real-time blockchain data streams,
+    delivered as GraphQL subscriptions over WebSocket. The same V2 GraphQL
+    schema served from the HTTP endpoint (`https://streaming.bitquery.io/graphql`)
+    is also available as a push stream over WebSocket, with each new block,
+    transaction, transfer, DEX trade, instruction, or event matching the
+    subscription's `where` filter pushed to the client as it is observed
+    onchain (or in the mempool).
+
+
+    Bitquery supports both of the standard GraphQL-over-WebSocket subprotocols:
+
+      - `graphql-ws` (legacy "subscriptions-transport-ws" protocol, message
+        types `connection_init` / `connection_ack` / `start` / `data` / `ka`
+        / `complete` / `error`)
+      - `graphql-transport-ws` (modern protocol, message types
+        `connection_init` / `connection_ack` / `subscribe` / `next` / `ping`
+        / `pong` / `complete` / `error`)
+
+    Authentication uses an OAuth bearer token (`ory_at_...`) appended to the
+    WebSocket URL as a `?token=` query string parameter. The `Sec-WebSocket-Protocol`
+    header MUST be set to `graphql-ws` or `graphql-transport-ws` to negotiate
+    the subprotocol. Bitquery's WebSocket server does not honor `stop`
+    messages from the client - the only reliable way to terminate a single
+    subscription is to send a `complete` frame for its `id`, and the only
+    reliable way to end a session is to close the WebSocket.
+
+    Supported networks across the V2 streaming endpoint include Ethereum,
+    BSC, Base, Solana, Arbitrum, Optimism, Tron, and Polygon (Matic). The
+    legacy Early Access Program endpoint (`wss://streaming.bitquery.io/eap`)
+    continues to be honored for existing customers; all chains that lived
+    on EAP (Solana, Matic, and others) have been migrated to the V2
+    endpoint for new users.
+  contact:
+    name: Bitquery
+    url: https://bitquery.io/
+  license:
+    name: Proprietary - Bitquery Terms of Service
+    url: https://bitquery.io/terms-of-service
+  termsOfService: https://bitquery.io/terms-of-service
+  x-apis-json:
+    aid: bitquery:streaming-subscriptions
+    sourceURL: https://raw.githubusercontent.com/api-evangelist/bitquery/refs/heads/main/asyncapi/bitquery-asyncapi.yml
+
+defaultContentType: application/json
+
+servers:
+  production-eu:
+    url: streaming.bitquery.io/graphql
+    protocol: wss
+    description: >-
+      Europe and nearby V2 streaming GraphQL WebSocket endpoint. Default
+      regional endpoint for `wss://streaming.bitquery.io/graphql`.
+    security:
+      - oauthToken: []
+  production-us:
+    url: us.streaming.bitquery.io/graphql
+    protocol: wss
+    description: >-
+      United States V2 streaming GraphQL WebSocket endpoint
+      (`wss://us.streaming.bitquery.io/graphql`).
+    security:
+      - oauthToken: []
+  production-asia:
+    url: asia.streaming.bitquery.io/graphql
+    protocol: wss
+    description: >-
+      Asia V2 streaming GraphQL WebSocket endpoint
+      (`wss://asia.streaming.bitquery.io/graphql`).
+    security:
+      - oauthToken: []
+  early-access:
+    url: streaming.bitquery.io/eap
+    protocol: wss
+    description: >-
+      Early Access Program (EAP) WebSocket endpoint. Existing customers
+      can continue using `wss://streaming.bitquery.io/eap` without
+      changes; new users should prefer the V2 `graphql` endpoint.
+    security:
+      - oauthToken: []
+
+channels:
+  /:
+    description: >-
+      The single GraphQL-over-WebSocket channel exposed by Bitquery. All
+      subscription operations (DEX trades, transfers, blocks, transactions,
+      mempool transactions, contract events, balance updates, etc.) are
+      multiplexed over this one channel using GraphQL protocol envelopes.
+      The actual data shape is determined by the GraphQL document sent in
+      the `subscribe` (or `start`) message payload.
+    bindings:
+      ws:
+        method: GET
+        query:
+          type: object
+          properties:
+            token:
+              type: string
+              description: >-
+                OAuth access token (e.g. `ory_at_...`). Bitquery requires
+                the token to be passed as a URL query parameter; it cannot
+                be sent in headers.
+          required:
+            - token
+        headers:
+          type: object
+          properties:
+            Sec-WebSocket-Protocol:
+              type: string
+              enum:
+                - graphql-ws
+                - graphql-transport-ws
+              description: >-
+                WebSocket subprotocol selector. Bitquery supports both the
+                legacy `graphql-ws` (subscriptions-transport-ws) and the
+                modern `graphql-transport-ws` protocols.
+            Content-Type:
+              type: string
+              const: application/json
+          required:
+            - Sec-WebSocket-Protocol
+        bindingVersion: '0.1.0'
+    subscribe:
+      operationId: receiveServerFrames
+      summary: Server-to-client GraphQL protocol frames.
+      description: >-
+        Frames the server sends to the client over the WebSocket. These
+        include the connection acknowledgement, the streamed subscription
+        payloads, keep-alives, completion, errors, and pong frames.
+      message:
+        oneOf:
+          - $ref: '#/components/messages/ConnectionAck'
+          - $ref: '#/components/messages/Next'
+          - $ref: '#/components/messages/Data'
+          - $ref: '#/components/messages/KeepAlive'
+          - $ref: '#/components/messages/Pong'
+          - $ref: '#/components/messages/Complete'
+          - $ref: '#/components/messages/Error'
+    publish:
+      operationId: sendClientFrames
+      summary: Client-to-server GraphQL protocol frames.
+      description: >-
+        Frames the client sends to the server. The client first sends
+        `connection_init`, then one or more `subscribe` (graphql-transport-ws)
+        or `start` (graphql-ws) frames carrying a GraphQL subscription
+        document, and optionally `ping` and `complete` frames.
+      message:
+        oneOf:
+          - $ref: '#/components/messages/ConnectionInit'
+          - $ref: '#/components/messages/Subscribe'
+          - $ref: '#/components/messages/Start'
+          - $ref: '#/components/messages/Ping'
+          - $ref: '#/components/messages/Complete'
+
+components:
+  securitySchemes:
+    oauthToken:
+      type: httpApiKey
+      name: token
+      in: query
+      description: >-
+        OAuth bearer token (`ory_at_...`) generated from
+        https://account.bitquery.io or via the
+        `https://oauth2.bitquery.io/oauth2/token` client_credentials grant
+        (`scope=api`). Bitquery requires the token to be appended to the
+        WebSocket URL as `?token=...`; it is not accepted in headers.
+
+  messages:
+    ConnectionInit:
+      name: connection_init
+      title: Connection Init (client -> server)
+      summary: First frame the client sends after the WebSocket opens.
+      payload:
+        type: object
+        required:
+          - type
+        properties:
+          type:
+            type: string
+            const: connection_init
+          payload:
+            type: object
+            description: >-
+              Optional payload. Bitquery does not require credentials in
+              this payload because the OAuth token is already part of the
+              URL.
+      examples:
+        - name: minimal
+          payload:
+            type: connection_init
+
+    ConnectionAck:
+      name: connection_ack
+      title: Connection Ack (server -> client)
+      summary: Server acknowledgement that the connection is initialised.
+      payload:
+        type: object
+        required:
+          - type
+        properties:
+          type:
+            type: string
+            const: connection_ack
+      examples:
+        - name: ack
+          payload:
+            type: connection_ack
+
+    Subscribe:
+      name: subscribe
+      title: Subscribe (client -> server, graphql-transport-ws)
+      summary: Starts a new GraphQL subscription, identified by `id`.
+      payload:
+        type: object
+        required:
+          - id
+          - type
+          - payload
+        properties:
+          id:
+            type: string
+            description: Client-assigned subscription identifier.
+          type:
+            type: string
+            const: subscribe
+          payload:
+            type: object
+            required:
+              - query
+            properties:
+              query:
+                type: string
+                description: GraphQL subscription document.
+              variables:
+                type: object
+                additionalProperties: true
+              operationName:
+                type: string
+                nullable: true
+              extensions:
+                type: object
+                additionalProperties: true
+      examples:
+        - name: solana-dex-trades
+          summary: Subscribe to live Solana DEX trades (all DEXs)
+          payload:
+            id: '1'
+            type: subscribe
+            payload:
+              query: |
+                subscription {
+                  Solana {
+                    DEXTrades {
+                      Block { Time Slot }
+                      Transaction { Signature Index Result { Success } }
+                      Trade {
+                        Dex { ProgramAddress ProtocolFamily ProtocolName }
+                        Buy {
+                          Amount
+                          Account { Address }
+                          Currency { MintAddress Symbol Name Decimals }
+                          Price
+                          PriceInUSD
+                        }
+                        Sell {
+                          Amount
+                          Account { Address }
+                          Currency { MintAddress Symbol Name Decimals }
+                          Price
+                          PriceInUSD
+                        }
+                        Market { MarketAddress }
+                      }
+                    }
+                  }
+                }
+        - name: evm-bsc-dex-trades
+          summary: Subscribe to live BSC DEX trades
+          payload:
+            id: '2'
+            type: subscribe
+            payload:
+              query: |
+                subscription LiveDexTrades {
+                  EVM(network: bsc) {
+                    DEXTrades {
+                      Block { Time }
+                      Trade {
+                        Dex { ProtocolName SmartContract }
+                        Buy { Buyer Amount Currency { Symbol SmartContract } }
+                        Sell { Seller Amount Currency { Symbol SmartContract } }
+                      }
+                    }
+                  }
+                }
+        - name: tron-mempool-transfers
+          summary: Subscribe to pending Tron transfers (mempool)
+          payload:
+            id: '3'
+            type: subscribe
+            payload:
+              query: |
+                subscription {
+                  Tron(mempool: true) {
+                    Transfers {
+                      Transfer {
+                        Sender
+                        Receiver
+                        Amount
+                        AmountInUSD
+                        Currency { Symbol }
+                      }
+                    }
+                  }
+                }
+        - name: evm-multi-stream
+          summary: Multiplex multiple EVM streams over one subscription
+          payload:
+            id: '4'
+            type: subscribe
+            payload:
+              query: |
+                subscription ($token: String!, $minamount: String!, $mempool: Boolean, $network: evm_network!) {
+                  usdt: EVM(network: $network, mempool: $mempool) {
+                    transfers_above_10K: Transfers(
+                      where: {Transfer: {Amount: {ge: $minamount}, Currency: {SmartContract: {is: $token}}}}
+                    ) {
+                      Transaction { Hash From Gas }
+                      Receipt { GasUsed }
+                      Transfer { Sender Receiver Amount }
+                    }
+                  }
+                }
+              variables:
+                token: '0xdac17f958d2ee523a2206206994597c13d831ec7'
+                minamount: '10000'
+                mempool: true
+                network: eth
+
+    Start:
+      name: start
+      title: Start (client -> server, graphql-ws legacy)
+      summary: >-
+        Legacy `subscriptions-transport-ws` form of `subscribe`. Identical
+        payload, different `type`.
+      payload:
+        type: object
+        required:
+          - id
+          - type
+          - payload
+        properties:
+          id:
+            type: string
+          type:
+            type: string
+            const: start
+          payload:
+            type: object
+            required:
+              - query
+            properties:
+              query:
+                type: string
+              variables:
+                type: object
+                additionalProperties: true
+              operationName:
+                type: string
+                nullable: true
+      examples:
+        - name: eth-blocks
+          payload:
+            id: '1'
+            type: start
+            payload:
+              query: |
+                subscription {
+                  EVM(network: eth) {
+                    Blocks { Block { TxCount } }
+                  }
+                }
+
+    Next:
+      name: next
+      title: Next (server -> client, graphql-transport-ws)
+      summary: A subscription result pushed to the client.
+      payload:
+        type: object
+        required:
+          - id
+          - type
+          - payload
+        properties:
+          id:
+            type: string
+          type:
+            type: string
+            const: next
+          payload:
+            type: object
+            description: >-
+              GraphQL `ExecutionResult` for the subscription. `data` is the
+              selection of the GraphQL subscription document; `errors` (if
+              present) is an array of GraphQL errors.
+            properties:
+              data:
+                type: object
+                additionalProperties: true
+              errors:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: true
+
+    Data:
+      name: data
+      title: Data (server -> client, graphql-ws legacy)
+      summary: Legacy form of `next`.
+      payload:
+        type: object
+        required:
+          - id
+          - type
+          - payload
+        properties:
+          id:
+            type: string
+          type:
+            type: string
+            const: data
+          payload:
+            type: object
+            properties:
+              data:
+                type: object
+                additionalProperties: true
+              errors:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: true
+
+    KeepAlive:
+      name: ka
+      title: Keep-alive (server -> client, graphql-ws legacy)
+      summary: >-
+        Periodic keep-alive frame the server emits on the `graphql-ws`
+        subprotocol so clients can detect a silent disconnect.
+      payload:
+        type: object
+        required:
+          - type
+        properties:
+          type:
+            type: string
+            const: ka
+
+    Ping:
+      name: ping
+      title: Ping (client -> server, graphql-transport-ws)
+      summary: Optional ping frame.
+      payload:
+        type: object
+        required:
+          - type
+        properties:
+          type:
+            type: string
+            const: ping
+          payload:
+            type: object
+            additionalProperties: true
+
+    Pong:
+      name: pong
+      title: Pong (server -> client, graphql-transport-ws)
+      summary: >-
+        Pong frame, emitted in response to a `ping` or as a heartbeat to
+        keep the connection alive on the `graphql-transport-ws` subprotocol.
+      payload:
+        type: object
+        required:
+          - type
+        properties:
+          type:
+            type: string
+            const: pong
+          payload:
+            type: object
+            additionalProperties: true
+
+    Complete:
+      name: complete
+      title: Complete (bidirectional)
+      summary: >-
+        Terminates a single subscription identified by `id`. Sent by the
+        server when the subscription naturally ends or by the client to
+        stop it. Bitquery does not acknowledge legacy `stop` messages, so
+        clients should send `complete` (and/or close the WebSocket) to
+        end a subscription.
+      payload:
+        type: object
+        required:
+          - id
+          - type
+        properties:
+          id:
+            type: string
+          type:
+            type: string
+            const: complete
+
+    Error:
+      name: error
+      title: Error (server -> client)
+      summary: Subscription-scoped GraphQL error frame.
+      payload:
+        type: object
+        required:
+          - id
+          - type
+          - payload
+        properties:
+          id:
+            type: string
+          type:
+            type: string
+            const: error
+          payload:
+            type: array
+            items:
+              type: object
+              additionalProperties: true

@@ -22,7 +22,7 @@ tags:
   - Crypto
   - Web3
 created: '2026-05-23'
-modified: '2026-05-23'
+modified: '2026-05-29'
 specificationVersion: '0.19'
 apis:
   - aid: bitquery:graphql-v2
@@ -61,7 +61,11 @@ apis:
       GraphQL subscriptions over WebSocket for real-time blockchain data -
       live DEX trades, transfers, pending transactions, contract events.
       Same V2 schema as the HTTP endpoint, delivered as push events.
-    humanURL: https://docs.bitquery.io/docs/subscriptions/protobuf/overview/
+      Supports both `graphql-ws` and `graphql-transport-ws` subprotocols,
+      with OAuth token passed as `?token=` on the WebSocket URL. The legacy
+      Early Access Program endpoint `wss://streaming.bitquery.io/eap` is
+      still honored for existing customers.
+    humanURL: https://docs.bitquery.io/docs/subscriptions/websockets/
     baseURL: wss://streaming.bitquery.io/graphql
     tags:
       - GraphQL Subscriptions
@@ -70,7 +74,11 @@ apis:
       - Realtime
     properties:
       - type: Documentation
-        url: https://docs.bitquery.io/docs/subscriptions/protobuf/overview/
+        url: https://docs.bitquery.io/docs/subscriptions/websockets/
+      - type: Authentication
+        url: https://docs.bitquery.io/docs/authorisation/websocket/
+      - type: AsyncAPI
+        url: https://raw.githubusercontent.com/api-evangelist/bitquery/refs/heads/main/asyncapi/bitquery-asyncapi.yml
   - aid: bitquery:kafka-streams
     name: Bitquery Kafka Streams
     description: >-
