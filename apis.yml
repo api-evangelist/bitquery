@@ -188,6 +188,8 @@ apis:
   - type: Website
     url: https://dexrabbit.com/
 common:
+- type: DomainSecurity
+  url: security/bitquery-domain-security.yml
 - type: Website
   url: https://bitquery.io/
 - type: Documentation
