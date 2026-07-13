@@ -10,9 +10,12 @@
     },
     {
       "source": "https://x.com/Bitquery_io",
-      "error": "HTTPError"
+      "feed_url": "https://x.com/Bitquery_io",
+      "title": "",
+      "saved": 0,
+      "method": "none"
     }
   ],
-  "post_count": 3,
-  "fetched": "2026-06-27T12:03:07Z"
+  "post_count": 42,
+  "fetched": "2026-07-11T11:50:51Z"
 }
