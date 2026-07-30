@@ -11,7 +11,19 @@ description: >-
   cloud datasets. Core data products cover token prices and OHLCV, DEX trades,
   transfers and wallet flows, contract calls and traces, events, NFTs and
   metadata, balances and holders, and mempool / pending transactions.
-image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
+accessModel:
+  pricing: free
+  onboarding: unknown
+  trial: false
+  try_now: false
+  public: false
+  label: Free
+  confidence: medium
+  source:
+  - plans
+  generated: '2026-07-22'
+  method: derived
+image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/bitquery.png
 tags:
 - Blockchain Data
 - GraphQL
