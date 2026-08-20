@@ -49,6 +49,10 @@ apis:
   tags:
   - GraphQL
   - Multi-Chain
+  - On-Chain Data
+  tags_raw:
+  - GraphQL
+  - Multi-Chain
   - Onchain Data
   properties:
   - type: Documentation
@@ -63,6 +67,10 @@ apis:
   humanURL: https://docs.bitquery.io/
   baseURL: https://graphql.bitquery.io
   tags:
+  - GraphQL
+  - Legacy
+  - v1
+  tags_raw:
   - GraphQL
   - Legacy
   - V1
@@ -82,6 +90,11 @@ apis:
   humanURL: https://docs.bitquery.io/docs/subscriptions/websockets/
   baseURL: wss://streaming.bitquery.io/graphql
   tags:
+  - GraphQL Subscriptions
+  - WebSocket
+  - Streaming
+  - Real-Time
+  tags_raw:
   - GraphQL Subscriptions
   - WebSocket
   - Streaming
