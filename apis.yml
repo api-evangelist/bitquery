@@ -11,6 +11,17 @@ description: >-
   cloud datasets. Core data products cover token prices and OHLCV, DEX trades,
   transfers and wallet flows, contract calls and traces, events, NFTs and
   metadata, balances and holders, and mempool / pending transactions.
+deliveryModel:
+  model: unknown
+  open_source: false
+  commercial: false
+  callable_host: false
+  label: Delivery model not determined — needs a product licence on record
+  confidence: low
+  source:
+  - none
+  generated: '2026-08-28'
+  method: derived
 accessModel:
   pricing: free
   onboarding: unknown
