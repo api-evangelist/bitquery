@@ -1,0 +1,1 @@
+{"resource":"https://mcp.bitquery.io","authorization_servers":["https://account.bitquery.io"],"bearer_methods_supported":["header","query"],"scopes_supported":["api"],"resource_documentation":"https://docs.bitquery.io/docs/authorisation/how-to-generate/"}
