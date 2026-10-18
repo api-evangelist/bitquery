@@ -43,6 +43,17 @@ tags:
 - GraphQL
 - Streaming
 - Indexer
+- Decentralized Exchange
+- NFT
+- Cryptocurrency
+- Web3
+- Real-Time
+- Ethereum
+tags_raw:
+- Blockchain Data
+- GraphQL
+- Streaming
+- Indexer
 - DEX
 - NFT
 - Crypto
@@ -222,6 +233,10 @@ apis:
   humanURL: https://dexrabbit.com/
   baseURL: https://dexrabbit.com/
   tags:
+  - Decentralized Exchange
+  - Analytics
+  - Real-Time
+  tags_raw:
   - DEX
   - Analytics
   - Real-Time
